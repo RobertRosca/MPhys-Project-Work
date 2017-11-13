@@ -1,0 +1,5 @@
+----- Measuring from: ds9.fits
+      "Cyg_X1" / no ext. header / 1000x1000 / 32 bits (floats)
+(M+D) Background: 0          RMS: 0.465231   / Threshold: 0.697846   
+> Line: 1000  Objects:      792 detected /        0 sextracted
+> *Error*: no key to print in table OBJECTS
