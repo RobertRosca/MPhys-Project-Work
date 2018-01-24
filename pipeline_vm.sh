@@ -11,17 +11,17 @@ notify-send "Running nupipeline on $# observations" -t 5
 highlight=`tput setaf 6`
 reset=`tput sgr0`
 
-echo "${highlight}Running for $@${reset}"
+echo "${highlight}Running for $@ ${reset}"
 
 for ObsID in "$@"
 do
-	echo "${highlight}Running on $ObsID${reset}"
+	echo "${highlight}Running on $ObsID ${reset}"
 	#exec 3>&1 4>&2
 	#trap `exec 2>&4 1>&3` 0 1 2 3
 	mkdir $clean_live$ObsID
 	#exec 1>$clean_live$ObsID"/pipeline_vm.log" 2>&1
 
-	echo "${highlight}Running init${reset}"
+	echo "${highlight}Running init ${reset}"
 	source /home/robert/Software/heasoft-6.22.1/x86_64-unknown-linux-gnu-libc2.23/headas-init.sh
 	source /home/robert/Software/caldb/software/tools/caldbinit.sh
 
@@ -31,10 +31,10 @@ do
 	fi
 
 	if [ -d "$archive_live$ObsID" ]; then
-		echo "${highlight}$ObsID already in live $archive_live"
+		echo "${highlight}$ObsID already in live $archive_live ${reset}"
 		#exit 1
 	else
-		echo "Copying $ObsID to $archive_live"
+		echo "${highlight}Copying $ObsID to $archive_live ${reset}"
 		rsync -a --info=progress2 $archive$ObsID/ $archive_live$ObsID/
 	fi
 
@@ -46,17 +46,17 @@ do
 
 	nupipeline indir=$archive_live$ObsID steminputs=nu$ObsID outdir=$clean_live$ObsID"/pipeline_out/" | tee -a "$log_file"
 
-	echo "${highlight}Finished nupipeline${reset}"
+	echo "${highlight}Finished nupipeline ${reset}"
 
 	rsync -a --info=progress2 --remove-source-files $clean_live$ObsID/ $clean$ObsID/
 
-	echo "${highlight}Removing $archive_live$ObsID${reset}"
+	echo "${highlight}Removing $archive_live$ObsID ${reset}"
 
 	rm -r -f $archive_live$ObsID
 
 	rm -r -f $clean_live$ObsID
 
-	echo "${highlight}DONE${reset}"
+	echo "${highlight}DONE ${reset}"
 
 	notify-send "Completed $ObsID nupipeline" -t 5
 done
