@@ -13,6 +13,8 @@ echo "${highlight}Running for $@ ${reset}"
 
 for ObsID in "$@"
 do
+	# Need to strip some random unicode '\u0096' that gets added to the ObsID for some reason
+	ObsID=$(tr -dc '[[:print:]]' <<< "$ObsID")
 	echo "${highlight}Running on $ObsID ${reset}"
 	mkdir $archive_cl$ObsID
 
