@@ -1,10 +1,12 @@
 #!/bin/bash
 
-archive="/cygdrive/i/.nustar_archive/"
+archive="/mnt/hgfs/.nustar_archive/"
+archive_live="/home/robert/Desktop/temp_hvs2/.nustar_archive/"
 
-archive_cl="/cygdrive/i/.nustar_archive_cl/"
+clean="/mnt/hgfs/.nustar_archive_cl/"
+clean_live="/home/robert/Desktop/temp_hvs2/.nustar_archive_cl/"
 
-powershell.exe -Command 'New-BurntToastNotification -Text "Nupipeline Running", "Running on $# observations"'
+notify-send "Running nupipeline on $# observations" -t 5
 
 highlight=`tput setaf 6`
 reset=`tput sgr0`
@@ -14,31 +16,51 @@ echo "${highlight}Running for $@ ${reset}"
 for ObsID in "$@"
 do
 	echo "${highlight}Running on $ObsID ${reset}"
-	mkdir $archive_cl$ObsID
+	#exec 3>&1 4>&2
+	#trap `exec 2>&4 1>&3` 0 1 2 3
+	mkdir $clean_live$ObsID
+	#exec 1>$clean_live$ObsID"/pipeline_vm.log" 2>&1
 
 	echo "${highlight}Running init ${reset}"
-	source /home/Robert/heasoft-6.22.1/i686-pc-cygwin/headas-init.sh
-	source /home/Robert/caldb/software/tools/caldbinit.sh
+	source /home/robert/Software/heasoft-6.22.1/x86_64-unknown-linux-gnu-libc2.23/headas-init.sh
+	source /home/robert/Software/caldb/software/tools/caldbinit.sh
 
-	#if [ ! -d "$archive$ObsID" ]; then
-	#	echo "${highlight}Observation not found at $archive$ObsID"
-	#	exit 1
-	#fi
+	if [ ! -d "$archive$ObsID" ]; then
+		echo "${highlight}Observation not found at $archive$ObsID"
+		exit 1
+	fi
 
-	echo "${highlight}Running nupipeline with indir=$archive$ObsID steminputs=nu$ObsID outdir=$archive_cl$ObsID/pipeline_out/${reset}"
+	if [ -d "$archive_live$ObsID" ]; then
+		echo "${highlight}$ObsID already in live $archive_live ${reset}"
+		#exit 1
+	else
+		echo "${highlight}Copying $ObsID to $archive_live ${reset}"
+		rsync -a --info=progress2 $archive$ObsID/ $archive_live$ObsID/
+	fi
 
-	log_file="$archive_cl$ObsID"/pipeline_vm.log""
+	echo "${highlight}Running nupipeline with indir=$archive_live$ObsID steminputs=nu$ObsID outdir=$clean_live$ObsID/pipeline_out/${reset}"
 
-	nupipeline indir=$archive$ObsID steminputs=nu$ObsID outdir=$archive_cl$ObsID"/pipeline_out/" | tee -a "$log_file"
+	notify-send "Running nupipeline on $ObsID" -t 5
+
+	log_file="$clean_live$ObsID"/pipeline_vm.log""
+
+	nupipeline indir=$archive_live$ObsID steminputs=nu$ObsID outdir=$clean_live$ObsID"/pipeline_out/" | tee -a "$log_file"
 
 	echo "${highlight}Finished nupipeline ${reset}"
 
+	rsync -a --info=progress2 --remove-source-files $clean_live$ObsID/ $clean$ObsID/
+
+	echo "${highlight}Removing $archive_live$ObsID ${reset}"
+
+	rm -r -f $archive_live$ObsID
+
+	rm -r -f $clean_live$ObsID
+
 	echo "${highlight}DONE ${reset}"
+
+	notify-send "Completed $ObsID nupipeline" -t 5
 done
 
+#read -p "Press enter to continue"
 
-powershell.exe -Command 'New-BurntToastNotification -Text "Nupipeline Finished", "Finished: $@"'
-
-# https://stackoverflow.com/questions/11616835/r-command-not-found-bashrc-bash-profile
-# https://stackoverflow.com/questions/16227971/whats-the-cygwin-windows-equivalent-of-linux-notify-send
-# https://stackoverflow.com/questions/4037939/powershell-says-execution-of-scripts-is-disabled-on-this-system
+#run(`gnome-terminal -e "/home/robert/pipeline_vm.sh ObsID"`)
