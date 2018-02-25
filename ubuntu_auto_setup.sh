@@ -9,7 +9,7 @@ sudo add-apt-repository -y ppa:numix/ppa
 
 # sublime text 3
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
-echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+echo "deb https://download.sublimetext.com/apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 
 # basic update
 sudo apt-get -y --force-yes update
@@ -19,11 +19,16 @@ sudo apt-get -y --force-yes upgrade
 sudo apt-get -y install \
 	open-vm-tools open-vm-tools-desktop git \
 	libreadline6-dev libcurl4-gnutls-dev libncurses5-dev xorg-dev gcc g++ gfortran perl-modules python-dev make build-essential libx11-dev libxt-dev \
-	sublime-text \
+	sublime-text atom \
 	gnome-shell-extensions gnome-tweak-tool arc-theme dconf-cli chrome-gnome-shell numix-icon-theme \
 
 # terminal theme
 wget -O xt  http://git.io/v3Dlm && chmod +x xt && ./xt && rm xt
+
+# atom packages
+apm install city-lights-icons city-lights-ui city-lights-syntax
+apm install highlight-selected atom-bracket-highlight
+apm install uber-juno
 
 # dirs
 mkdir -p ~/Software/heasoft/logs
@@ -60,5 +65,20 @@ echo 'export CALDB' >> ~/.bash_aliases
 echo 'alias caldbinit="source $CALDB/software/tools/caldbinit.sh"' >> ~/.bash_aliases
 
 # manual
-echo set up sdb1 scratch: https://ubuntuforums.org/showthread.php?t=1145596
-echo link julia with sudo ln -s ~/Scratch/julia-d386e40c17/bin/julia /usr/local/bin
+echo 'set up vmware shared folders'
+echo 'compile/install heasoft and caldb'
+echo ''
+echo 'gparted format sdb1'
+echo 'set up sdb1 scratch: https://ubuntuforums.org/showthread.php?t=1145596'
+echo 'link julia with sudo ln -s ~/Scratch/julia-d386e40c17/bin/julia /usr/local/bin'
+echo ''
+
+# heasoft config
+# ./configure --prefix="/home/robert/Software/heasoft" >& config.out & tail -f config.out
+# mv ./config.out ~/Software/heasoft/logs
+
+# make >& build.log & tail -f build.log
+# mv ./build.log ~/Software/heasoft/logs
+
+# make install >& install.log & tail -f install.log
+# mv ./install.log ~/Software/heasoft/logs
